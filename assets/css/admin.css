@@ -1,0 +1,36 @@
+.formflow-dashboard .postbox {
+	margin-bottom: 20px;
+}
+
+.formflow-dashboard-cards {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+}
+
+.formflow-stat-card {
+	flex: 1;
+	min-width: 220px;
+	box-sizing: border-box;
+	padding: 20px;
+	margin: 0;
+}
+
+.formflow-stat-number {
+	font-size: 36px;
+	font-weight: 600;
+	line-height: 1.2;
+	margin-bottom: 10px;
+}
+
+.formflow-stat-label {
+	font-size: 14px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.formflow-actions {
+	display: flex;
+	gap: 10px;
+	margin: 0;
+}
