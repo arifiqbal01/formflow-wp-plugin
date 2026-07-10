@@ -57,7 +57,7 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {
@@ -158,7 +158,7 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {
@@ -246,7 +246,7 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {

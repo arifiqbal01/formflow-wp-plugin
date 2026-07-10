@@ -155,21 +155,41 @@ class FormFlow_Submission {
 	}
 
     /**
-     * Get the submitter's email.
-     *
-     * @return string
-     */
-    public function email() {
+	 * Get the submitter's email.
+	 *
+	 * @return string
+	 */
+	public function email() {
 
-        foreach ( $this->data as $key => $value ) {
+		$preferred = array(
+			'your-email',
+			'email',
+			'email-address',
+			'email_address',
+		);
 
-            if ( false !== strpos( strtolower( $key ), 'email' ) ) {
-                return is_array( $value ) ? '' : sanitize_email( $value );
-            }
-        }
+		foreach ( $preferred as $field ) {
 
-        return '';
-    }
+			if (
+				isset( $this->data[ $field ] ) &&
+				is_string( $this->data[ $field ] )
+			) {
+				return sanitize_email( $this->data[ $field ] );
+			}
+		}
+
+		foreach ( $this->data as $key => $value ) {
+
+			if (
+				is_string( $value ) &&
+				false !== strpos( strtolower( $key ), 'email' )
+			) {
+				return sanitize_email( $value );
+			}
+		}
+
+		return '';
+	}
 
     /**
      * Get the submitter's name.

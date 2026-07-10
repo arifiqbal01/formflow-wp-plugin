@@ -91,6 +91,10 @@ class FormFlow_Contact_Form_7 {
 			$posted_data
 		);
 
+		error_log(
+			print_r( $this->registration_result, true )
+		);
+
 		$result = $this->registration_result;
 
 		if ( ! $result['success'] ) {
@@ -127,7 +131,7 @@ class FormFlow_Contact_Form_7 {
 	public function modify_feedback_response( $response, $result ) {
 
 		if (
-			empty( $this->registration_result ) ||
+			empty( $this->registration_result['status'] ) ||
 			'waiting' !== $this->registration_result['status']
 		) {
 			return $response;
