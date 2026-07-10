@@ -31,21 +31,31 @@ class FormFlow_Admin {
 	private $batch_service;
 
 	/**
+	 * Registration service.
+	 *
+	 * @var FormFlow_Registration_Service
+	 */
+	private $registration_service;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param FormFlow_Database            $database      Database facade.
-	 * @param FormFlow_Event_Service       $event_service Event service.
-	 * @param FormFlow_Event_Batch_Service $batch_service Batch service.
+	 * @param FormFlow_Database             $database             Database facade.
+	 * @param FormFlow_Event_Service        $event_service        Event service.
+	 * @param FormFlow_Event_Batch_Service  $batch_service        Batch service.
+	 * @param FormFlow_Registration_Service $registration_service Registration service.
 	 */
 	public function __construct(
 		FormFlow_Database $database,
 		FormFlow_Event_Service $event_service,
-		FormFlow_Event_Batch_Service $batch_service
+		FormFlow_Event_Batch_Service $batch_service,
+		FormFlow_Registration_Service $registration_service
 	) {
 
 		$this->database      = $database;
 		$this->event_service = $event_service;
 		$this->batch_service = $batch_service;
+		$this->registration_service = $registration_service;
 
 		add_action(
 			'admin_menu',
@@ -161,7 +171,8 @@ class FormFlow_Admin {
 		require_once FORMFLOW_PATH . 'includes/admin/class-registrations.php';
 
 		$page = new FormFlow_Registrations(
-			$this->database
+			$this->database,
+			$this->registration_service
 		);
 
 		$page->render();

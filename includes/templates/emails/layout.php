@@ -127,7 +127,7 @@ $logo = home_url(
 							<br><br>
 
 							<?php esc_html_e(
-								'Helping children build a strong Islamic foundation.',
+								'Kinderen helpen een sterke islamitische basis op te bouwen.',
 								'formflow'
 							); ?>
 

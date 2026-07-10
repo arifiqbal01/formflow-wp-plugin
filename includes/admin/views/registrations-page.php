@@ -163,37 +163,10 @@ defined( 'ABSPATH' ) || exit;
 
 						<td colspan="8">
 
-							<table class="widefat striped">
-
-								<tbody>
-
-									<?php foreach ( $submission->to_array() as $field => $value ) : ?>
-
-										<tr>
-
-											<th style="width:220px;">
-												<?php echo esc_html( $field ); ?>
-											</th>
-
-											<td>
-
-												<?php
-												if ( is_array( $value ) ) {
-													echo esc_html( implode( ', ', $value ) );
-												} else {
-													echo esc_html( $value );
-												}
-												?>
-
-											</td>
-
-										</tr>
-
-									<?php endforeach; ?>
-
-								</tbody>
-
-							</table>
+							<?php
+							require FORMFLOW_PATH .
+								'includes/admin/views/registration-details.php';
+							?>
 
 						</td>
 

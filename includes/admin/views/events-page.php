@@ -213,6 +213,43 @@ defined( 'ABSPATH' ) || exit;
 
 				</tr>
 
+				<tr>
+
+					<th scope="row">
+						<?php esc_html_e( 'Promotion Email', 'formflow' ); ?>
+					</th>
+
+					<td>
+
+						<label>
+
+							<input
+								type="checkbox"
+								name="promotion_email_enabled"
+								value="1"
+								<?php checked( $event ? $event->promotion_email_enabled : 0 ); ?>
+							/>
+
+							<?php esc_html_e(
+								'Automatically send promotion emails',
+								'formflow'
+							); ?>
+
+						</label>
+
+						<p class="description">
+
+							<?php esc_html_e(
+								'Send an email automatically when a waiting list registration is promoted to a batch.',
+								'formflow'
+							); ?>
+
+						</p>
+
+					</td>
+
+				</tr>
+
 			</table>
 
 			<?php
@@ -255,6 +292,7 @@ defined( 'ABSPATH' ) || exit;
 				<th><?php esc_html_e( 'Registration', 'formflow' ); ?></th>
 
 				<th><?php esc_html_e( 'Waiting List', 'formflow' ); ?></th>
+				<th><?php esc_html_e( 'Promotion Email', 'formflow' ); ?></th>
 
 				<th><?php esc_html_e( 'Actions', 'formflow' ); ?></th>
 
@@ -268,7 +306,7 @@ defined( 'ABSPATH' ) || exit;
 
 				<tr>
 
-					<td colspan="5">
+					<td colspan="6">
 						<?php esc_html_e( 'No events found.', 'formflow' ); ?>
 					</td>
 
@@ -298,6 +336,16 @@ defined( 'ABSPATH' ) || exit;
 
 							<?php
 							echo $event->waiting_list_enabled
+								? esc_html__( 'Enabled', 'formflow' )
+								: esc_html__( 'Disabled', 'formflow' );
+							?>
+
+						</td>
+
+						<td>
+
+							<?php
+							echo $event->promotion_email_enabled
 								? esc_html__( 'Enabled', 'formflow' )
 								: esc_html__( 'Disabled', 'formflow' );
 							?>

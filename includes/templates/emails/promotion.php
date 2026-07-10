@@ -23,7 +23,7 @@ $name = $submission->name();
 		color:#2F2F2F;
 	"
 >
-	<?php esc_html_e( 'Registration Confirmed!', 'formflow' ); ?>
+	<?php esc_html_e( 'Inschrijving Bevestigd!', 'formflow' ); ?>
 </h1>
 
 <?php if ( ! empty( $name ) ) : ?>
@@ -33,7 +33,7 @@ $name = $submission->name();
 		<?php
 		printf(
 			/* translators: %s: Name. */
-			esc_html__( 'Dear %s,', 'formflow' ),
+			esc_html__( 'Beste %s,', 'formflow' ),
 			esc_html( $name )
 		);
 		?>
@@ -47,11 +47,11 @@ $name = $submission->name();
 	<?php
 	printf(
 		/* translators: %s: Event title. */
-		esc_html__(
-			'Great news! A place has become available for %s.',
+		__(
+			'Goed nieuws! Er is een plaats vrijgekomen voor <strong>%s</strong>.',
 			'formflow'
 		),
-		'<strong>' . esc_html( $event->title ) . '</strong>'
+		esc_html( $event->title )
 	);
 	?>
 
@@ -60,7 +60,7 @@ $name = $submission->name();
 <p>
 
 	<?php esc_html_e(
-		'Your registration has now been confirmed and your child has been successfully assigned to the next available batch.',
+		'De inschrijving van uw kind is nu definitief bevestigd en toegewezen aan de eerstvolgende beschikbare groep.',
 		'formflow'
 	); ?>
 
@@ -79,7 +79,7 @@ $name = $submission->name();
 	<strong style="color:#2F2F2F;">
 
 		<?php esc_html_e(
-			'Registration Details',
+			'Inschrijvingsgegevens',
 			'formflow'
 		); ?>
 
@@ -96,7 +96,7 @@ $name = $submission->name();
 		<tr>
 
 			<td style="font-weight:bold;width:150px;">
-				<?php esc_html_e( 'Programme', 'formflow' ); ?>
+				<?php esc_html_e( 'Programma', 'formflow' ); ?>
 			</td>
 
 			<td>
@@ -108,14 +108,14 @@ $name = $submission->name();
 		<tr>
 
 			<td style="font-weight:bold;">
-				<?php esc_html_e( 'Batch', 'formflow' ); ?>
+				<?php esc_html_e( 'Groep', 'formflow' ); ?>
 			</td>
 
 			<td>
 
 				<?php
 				printf(
-					esc_html__( 'Batch #%d', 'formflow' ),
+					esc_html__( 'Groep %d', 'formflow' ),
 					(int) $batch->batch_number
 				);
 				?>
@@ -131,7 +131,7 @@ $name = $submission->name();
 			</td>
 
 			<td style="color:#6F8B57;font-weight:bold;">
-				<?php esc_html_e( 'Confirmed', 'formflow' ); ?>
+				<?php esc_html_e( 'Bevestigd', 'formflow' ); ?>
 			</td>
 
 		</tr>
@@ -143,7 +143,7 @@ $name = $submission->name();
 <p>
 
 	<?php esc_html_e(
-		'We are delighted to welcome your child to Sakynah. If there are any further updates or important information before the programme begins, we will contact you by email.',
+		'Wij kijken ernaar uit uw kind te verwelkomen bij Sakynah. Mocht er vóór de start van het programma nog belangrijke informatie zijn, dan nemen wij per e-mail contact met u op.',
 		'formflow'
 	); ?>
 
@@ -152,7 +152,7 @@ $name = $submission->name();
 <p>
 
 	<?php esc_html_e(
-		'If you have any questions, please feel free to reply to this email.',
+		'Heeft u nog vragen? U kunt gerust op deze e-mail reageren.',
 		'formflow'
 	); ?>
 
@@ -160,7 +160,7 @@ $name = $submission->name();
 
 <p style="margin-top:36px;">
 
-	<?php esc_html_e( 'Kind regards,', 'formflow' ); ?>
+	<?php esc_html_e( 'Met vriendelijke groet,', 'formflow' ); ?>
 
 	<br>
 

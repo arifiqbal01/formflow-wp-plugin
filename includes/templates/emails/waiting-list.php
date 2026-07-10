@@ -22,7 +22,7 @@ $name = $submission->name();
 		color:#2F2F2F;
 	"
 >
-	<?php esc_html_e( 'You’re on the Waiting List', 'formflow' ); ?>
+	<?php esc_html_e( 'U staat op de wachtlijst', 'formflow' ); ?>
 </h1>
 
 <?php if ( ! empty( $name ) ) : ?>
@@ -32,7 +32,7 @@ $name = $submission->name();
 		<?php
 		printf(
 			/* translators: %s: Name. */
-			esc_html__( 'Dear %s,', 'formflow' ),
+			esc_html__( 'Beste %s,', 'formflow' ),
 			esc_html( $name )
 		);
 		?>
@@ -46,11 +46,11 @@ $name = $submission->name();
 	<?php
 	printf(
 		/* translators: %s: Event title. */
-		esc_html__(
-			'Thank you for registering for %s.',
+		__(
+			'Bedankt voor uw inschrijving voor <strong>%s</strong>.',
 			'formflow'
 		),
-		'<strong>' . esc_html( $event->title ) . '</strong>'
+		esc_html( $event->title )
 	);
 	?>
 
@@ -59,7 +59,7 @@ $name = $submission->name();
 <p>
 
 	<?php esc_html_e(
-		'Unfortunately, the current batch has reached capacity, so your registration has been placed on the waiting list.',
+		'Helaas is de huidige groep volledig vol. Daarom is de inschrijving van uw kind op de wachtlijst geplaatst.',
 		'formflow'
 	); ?>
 
@@ -78,7 +78,7 @@ $name = $submission->name();
 	<strong style="color:#2F2F2F;">
 
 		<?php esc_html_e(
-			'What happens next?',
+			'Hoe gaat het nu verder?',
 			'formflow'
 		); ?>
 
@@ -94,21 +94,21 @@ $name = $submission->name();
 
 		<li>
 			<?php esc_html_e(
-				'Your place on the waiting list has been secured.',
+				'Uw plaats op de wachtlijst is succesvol geregistreerd.',
 				'formflow'
 			); ?>
 		</li>
 
 		<li>
 			<?php esc_html_e(
-				'If a place becomes available, you will automatically be promoted.',
+				'Zodra er een plaats beschikbaar komt, wordt uw kind automatisch doorgeschoven.',
 				'formflow'
 			); ?>
 		</li>
 
 		<li>
 			<?php esc_html_e(
-				'You will receive another email once your registration has been confirmed.',
+				'U ontvangt vervolgens automatisch een bevestigingsmail zodra de inschrijving definitief is.',
 				'formflow'
 			); ?>
 		</li>
@@ -120,7 +120,7 @@ $name = $submission->name();
 <p>
 
 	<?php esc_html_e(
-		'Thank you for your patience and interest in Sakynah. We appreciate your trust and hope to welcome your child soon.',
+		'Bedankt voor uw geduld en uw interesse in Sakynah. Wij hopen uw kind binnenkort te mogen verwelkomen.',
 		'formflow'
 	); ?>
 
@@ -128,7 +128,7 @@ $name = $submission->name();
 
 <p style="margin-top:36px;">
 
-	<?php esc_html_e( 'Kind regards,', 'formflow' ); ?>
+	<?php esc_html_e( 'Met vriendelijke groet,', 'formflow' ); ?>
 
 	<br>
 

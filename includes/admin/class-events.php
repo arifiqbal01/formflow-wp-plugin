@@ -119,9 +119,11 @@ class FormFlow_Events {
 			: 0;
 
 		$data = array(
-			'title'                => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
-			'cf7_form_id'          => absint( $_POST['cf7_form_id'] ),
-			'waiting_list_enabled' => isset( $_POST['waiting_list_enabled'] ) ? 1 : 0,
+			'title'                     => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
+			'cf7_form_id'               => absint( $_POST['cf7_form_id'] ),
+			'registration_open'         => isset( $_POST['registration_open'] ) ? 1 : 0,
+			'waiting_list_enabled'      => isset( $_POST['waiting_list_enabled'] ) ? 1 : 0,
+			'promotion_email_enabled'   => isset( $_POST['promotion_email_enabled'] ) ? 1 : 0,
 		);
 
 		if ( $event_id ) {

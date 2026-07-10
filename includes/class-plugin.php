@@ -107,7 +107,8 @@ class FormFlow_Plugin {
 			new FormFlow_Admin(
 				$this->database,
 				$event_service,
-				$batch_service
+				$batch_service,
+				$registration_service
 			);
 		}
 

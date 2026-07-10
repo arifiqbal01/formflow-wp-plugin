@@ -28,16 +28,31 @@ class FormFlow_Email_Service {
 	}
 
 	/**
-	 * Send waiting list email.
+	 * Send registration confirmation email.
 	 *
 	 * @param int $registration_id Registration ID.
 	 * @return bool
 	 */
-	public function send_waiting_email( $registration_id ) {
+	public function send_registration_email( $registration_id ) {
+
+		error_log(
+			sprintf(
+				'[FormFlow] Preparing registration email for registration #%d',
+				$registration_id
+			)
+		);
 
 		$submission = $this->get_submission( $registration_id );
 
 		if ( ! $submission ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] Submission not found for registration #%d',
+					$registration_id
+				)
+			);
+
 			return false;
 		}
 
@@ -46,8 +61,124 @@ class FormFlow_Email_Service {
 		);
 
 		if ( empty( $email ) ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] No recipient email for registration #%d',
+					$registration_id
+				)
+			);
+
 			return false;
 		}
+
+		error_log(
+			sprintf(
+				'[FormFlow] Registration email recipient: %s',
+				$email
+			)
+		);
+
+		$batch = null;
+
+		if ( $submission->registration()->batch_id ) {
+
+			$batch = $this->database
+				->batches
+				->get_batch(
+					$submission->registration()->batch_id
+				);
+		}
+
+		$subject = sprintf(
+			__( 'Registration Confirmed - %s', 'formflow' ),
+			$submission->event()->title
+		);
+
+		$message = $this->render_email(
+			'emails/registration',
+			array(
+				'submission' => $submission,
+				'event'      => $submission->event(),
+				'batch'      => $batch,
+			)
+		);
+
+		error_log(
+			sprintf(
+				'[FormFlow] Registration email size: %d bytes',
+				strlen( $message )
+			)
+		);
+
+		$sent = wp_mail(
+			$email,
+			$subject,
+			$message,
+			$this->headers()
+		);
+
+		error_log(
+			sprintf(
+				'[FormFlow] Registration email result: %s',
+				$sent ? 'SUCCESS' : 'FAILED'
+			)
+		);
+
+		return $sent;
+	}
+
+	/**
+	 * Send waiting list email.
+	 *
+	 * @param int $registration_id Registration ID.
+	 * @return bool
+	 */
+	public function send_waiting_email( $registration_id ) {
+
+		error_log(
+			sprintf(
+				'[FormFlow] Preparing waiting email for registration #%d',
+				$registration_id
+			)
+		);
+
+		$submission = $this->get_submission( $registration_id );
+
+		if ( ! $submission ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] Submission not found for registration #%d',
+					$registration_id
+				)
+			);
+
+			return false;
+		}
+
+		$email = sanitize_email(
+			$submission->get( 'your-email' )
+		);
+
+		if ( empty( $email ) ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] No recipient email for registration #%d',
+					$registration_id
+				)
+			);
+
+			return false;
+		}
+
+		error_log(
+			sprintf(
+				'[FormFlow] Waiting email recipient: %s',
+				$email
+			)
+		);
 
 		$subject = sprintf(
 			__( 'Waiting List - %s', 'formflow' ),
@@ -62,14 +193,29 @@ class FormFlow_Email_Service {
 			)
 		);
 
-		return wp_mail(
+		error_log(
+			sprintf(
+				'[FormFlow] Waiting email size: %d bytes',
+				strlen( $message )
+			)
+		);
+
+		$sent = wp_mail(
 			$email,
 			$subject,
 			$message,
 			$this->headers()
 		);
-	}
 
+		error_log(
+			sprintf(
+				'[FormFlow] Waiting email result: %s',
+				$sent ? 'SUCCESS' : 'FAILED'
+			)
+		);
+
+		return $sent;
+	}
 	/**
 	 * Send promotion email.
 	 *
@@ -78,9 +224,24 @@ class FormFlow_Email_Service {
 	 */
 	public function send_promotion_email( $registration_id ) {
 
+		error_log(
+			sprintf(
+				'[FormFlow] Preparing promotion email for registration #%d',
+				$registration_id
+			)
+		);
+
 		$submission = $this->get_submission( $registration_id );
 
 		if ( ! $submission ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] Submission not found for registration #%d',
+					$registration_id
+				)
+			);
+
 			return false;
 		}
 
@@ -89,8 +250,23 @@ class FormFlow_Email_Service {
 		);
 
 		if ( empty( $email ) ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] No recipient email for registration #%d',
+					$registration_id
+				)
+			);
+
 			return false;
 		}
+
+		error_log(
+			sprintf(
+				'[FormFlow] Promotion email recipient: %s',
+				$email
+			)
+		);
 
 		$batch = $this->database
 			->batches
@@ -112,12 +288,28 @@ class FormFlow_Email_Service {
 			)
 		);
 
-		return wp_mail(
+		error_log(
+			sprintf(
+				'[FormFlow] Promotion email size: %d bytes',
+				strlen( $message )
+			)
+		);
+
+		$sent = wp_mail(
 			$email,
 			$subject,
 			$message,
 			$this->headers()
 		);
+
+		error_log(
+			sprintf(
+				'[FormFlow] Promotion email result: %s',
+				$sent ? 'SUCCESS' : 'FAILED'
+			)
+		);
+
+		return $sent;
 	}
 
 	/**
@@ -163,6 +355,14 @@ class FormFlow_Email_Service {
 			'.php';
 
 		if ( ! file_exists( $file ) ) {
+
+			error_log(
+				sprintf(
+					'[FormFlow] Email template not found: %s',
+					$file
+				)
+			);
+
 			return '';
 		}
 
@@ -172,7 +372,17 @@ class FormFlow_Email_Service {
 
 		require $file;
 
-		return ob_get_clean();
+		$output = ob_get_clean();
+
+		error_log(
+			sprintf(
+				'[FormFlow] Rendered template "%s" (%d bytes)',
+				$template,
+				strlen( $output )
+			)
+		);
+
+		return $output;
 	}
 
 	/**
