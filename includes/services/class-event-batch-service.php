@@ -79,6 +79,12 @@ class FormFlow_Event_Batch_Service {
 	 * @return array
 	 */
 	public function create_batch( $event_id, $capacity ) {
+		return $this->database->registrations->with_event_lock( $event_id, function () use ( $event_id, $capacity ) {
+			return $this->create_batch_unlocked( $event_id, $capacity );
+		} );
+	}
+
+	private function create_batch_unlocked( $event_id, $capacity ) {
 
 		if ( $this->has_open_batch( $event_id ) ) {
 			return array(
@@ -207,7 +213,7 @@ class FormFlow_Event_Batch_Service {
 	 * Update batch capacity.
 	 *
 	 * Capacity cannot be reduced below the number of
-	 * registered attendees. Completed and cancelled
+	 * attendees and active payment reservations. Completed and cancelled
 	 * batches cannot be modified.
 	 *
 	 * @param int $batch_id Batch ID.
@@ -248,7 +254,7 @@ class FormFlow_Event_Batch_Service {
 
 		$capacity = max( 1, absint( $capacity ) );
 
-		$registered = $this->capacity->registered_count(
+		$registered = $this->capacity->occupied_count(
 			$batch_id
 		);
 
@@ -258,7 +264,7 @@ class FormFlow_Event_Batch_Service {
 				'message' => sprintf(
 					/* translators: %d: Registered attendees. */
 					__(
-						'Capacity cannot be less than the %d registered attendees.',
+						'Capacity cannot be less than the %d attendees and active payment reservations.',
 						'formflow'
 					),
 					$registered

@@ -55,6 +55,10 @@ class FormFlow_Event_Service {
 			);
 		}
 
+		if ( ! empty( $data['payment_required'] ) && ( ! isset( $data['payment_amount'] ) || ! preg_match( '/^\d{1,8}(\.\d{1,2})?$/D', (string) $data['payment_amount'] ) || (float) $data['payment_amount'] <= 0 ) ) {
+			return array( 'success' => false, 'message' => __( 'Enter a positive EUR amount with at most two decimal places.', 'formflow' ) );
+		}
+
 		$existing = $this->database->events->get_event_by_form_id_excluding(
 			$data['cf7_form_id'],
 			$exclude_event_id

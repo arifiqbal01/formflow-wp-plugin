@@ -72,12 +72,6 @@ class FormFlow_Email_Service {
 			return false;
 		}
 
-		error_log(
-			sprintf(
-				'[FormFlow] Registration email recipient: %s',
-				$email
-			)
-		);
 
 		$batch = null;
 
@@ -173,12 +167,6 @@ class FormFlow_Email_Service {
 			return false;
 		}
 
-		error_log(
-			sprintf(
-				'[FormFlow] Waiting email recipient: %s',
-				$email
-			)
-		);
 
 		$subject = sprintf(
 			__( 'Waiting List - %s', 'formflow' ),
@@ -261,12 +249,6 @@ class FormFlow_Email_Service {
 			return false;
 		}
 
-		error_log(
-			sprintf(
-				'[FormFlow] Promotion email recipient: %s',
-				$email
-			)
-		);
 
 		$batch = $this->database
 			->batches

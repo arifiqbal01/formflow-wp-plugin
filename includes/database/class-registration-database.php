@@ -367,4 +367,56 @@ class FormFlow_Registration_Database {
 			)
 		);
 	}
+
+	/** Serialize capacity decisions per event across PHP workers (also works with legacy tables). */
+	public function with_event_lock( $event_id, callable $callback ) {
+		global $wpdb;
+		$name = 'formflow_' . md5( ( defined( 'DB_NAME' ) ? DB_NAME : '' ) . ':' . $this->table . ':' . (int) $event_id );
+		if ( '1' !== (string) $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 5)', $name ) ) ) {
+			return array( 'success' => false, 'message' => __( 'Registration is busy. Please try again.', 'formflow' ) );
+		}
+		try {
+			return $callback();
+		} finally {
+			$wpdb->get_var( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $name ) );
+		}
+	}
+
+	/** Count confirmed attendees AND live checkout reservations. Fail closed on database errors. */
+	public function occupied_count( $batch_id ) {
+		global $wpdb;
+		$count = $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$this->table} WHERE batch_id = %d AND
+			(status = 'registered' OR (status = 'pending_payment' AND reservation_expires_at > UTC_TIMESTAMP()))",
+			$batch_id
+		) );
+		return null === $count ? PHP_INT_MAX : (int) $count;
+	}
+
+	/** Expired holds no longer consume seats; late successful payments are reconciled separately. */
+	public function expire_reservations( $event_id ) {
+		global $wpdb;
+		$wpdb->query( $wpdb->prepare(
+			"UPDATE {$this->table} SET status = 'cancelled', payment_status = 'expired'
+			WHERE event_id = %d AND status = 'pending_payment' AND reservation_expires_at <= UTC_TIMESTAMP()",
+			$event_id
+		) );
+	}
+
+	public function payment_work() {
+		global $wpdb;
+		return $wpdb->get_results( "SELECT * FROM {$this->table}
+			WHERE (status = 'pending_payment') OR
+			(status = 'registered' AND payment_status = 'paid' AND confirmation_sent_at IS NULL)
+			ORDER BY id ASC LIMIT 100" );
+	}
+
+	/** Claim before sending so duplicate callbacks cannot send duplicate confirmations. */
+	public function claim_confirmation( $id ) {
+		global $wpdb;
+		return 1 === $wpdb->query( $wpdb->prepare(
+			"UPDATE {$this->table} SET confirmation_sent_at = UTC_TIMESTAMP()
+			WHERE id = %d AND status = 'registered' AND payment_status = 'paid' AND confirmation_sent_at IS NULL", $id
+		) );
+	}
 }

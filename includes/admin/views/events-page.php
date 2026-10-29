@@ -250,6 +250,23 @@ defined( 'ABSPATH' ) || exit;
 
 				</tr>
 
+				<tr>
+					<th scope="row"><?php esc_html_e( 'Payment', 'formflow' ); ?></th>
+					<td>
+						<label><input type="checkbox" name="payment_required" value="1" <?php checked( $event ? $event->payment_required : 1 ); ?>> <?php esc_html_e( 'Require successful payment before registration', 'formflow' ); ?></label>
+						<p class="description"><?php esc_html_e( 'Paid events do not accept waiting-list submissions or auto-promote unpaid applicants. Existing attendees are unchanged.', 'formflow' ); ?></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="payment_amount"><?php esc_html_e( 'Programme price (EUR)', 'formflow' ); ?></label></th>
+					<td><input type="number" min="0" max="99999999.99" step="0.01" id="payment_amount" name="payment_amount" value="<?php echo esc_attr( $event && (float) $event->payment_amount > 0 ? $event->payment_amount : '80.00' ); ?>"></td>
+				</tr>
+				<tr>
+					<th scope="row"><label for="pronamic_config_id"><?php esc_html_e( 'Pronamic Mollie configuration ID', 'formflow' ); ?></label></th>
+					<td><input type="number" min="0" id="pronamic_config_id" name="pronamic_config_id" value="<?php echo esc_attr( $event ? $event->pronamic_config_id : 0 ); ?>">
+					<p class="description"><?php esc_html_e( 'Use 0 for the default Pronamic configuration. It must be a published Mollie configuration. Checkout reservations last 30 minutes.', 'formflow' ); ?></p></td>
+				</tr>
+
 			</table>
 
 			<?php

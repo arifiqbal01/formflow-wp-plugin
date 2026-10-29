@@ -1,0 +1,44 @@
+name: Payment integration tests
+on:
+  push:
+    branches: [develop-ai]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  payments:
+    runs-on: ubuntu-latest
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: formflow-local-test
+          MARIADB_DATABASE: formflow_test
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s --health-timeout=5s --health-retries=10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mysqli
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare disposable WordPress
+        run: |
+          git clone --depth 1 https://github.com/WordPress/WordPress.git "$RUNNER_TEMP/wordpress"
+          cp tests/wp-config.sample.php "$RUNNER_TEMP/wordpress/wp-config.php"
+      - name: PHP syntax
+        run: find . -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Database, payment lifecycle, concurrency and frontend tests
+        env:
+          WP_TEST_ROOT: ${{ runner.temp }}/wordpress
+          FORMFLOW_TEST_DB_HOST: 127.0.0.1:3306
+          FORMFLOW_TEST_DB_NAME: formflow_test
+          FORMFLOW_TEST_DB_USER: root
+          FORMFLOW_TEST_DB_PASSWORD: formflow-local-test
+        run: bash tests/run.sh

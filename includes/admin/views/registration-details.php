@@ -13,6 +13,15 @@
 defined( 'ABSPATH' ) || exit;
 ?>
 
+
+<h3><?php esc_html_e( 'Payment', 'formflow' ); ?></h3>
+<p><?php echo esc_html( sprintf( '%s %s — %s', $registration->payment_amount, $registration->payment_currency, $registration->payment_status ) ); ?></p>
+<?php if ( $registration->payment_id ) : ?>
+	<p><a href="<?php echo esc_url( admin_url( 'post.php?post=' . absint( $registration->payment_id ) . '&action=edit' ) ); ?>"><?php esc_html_e( 'View payment in Pronamic', 'formflow' ); ?></a></p>
+<?php endif; ?>
+<?php if ( 'payment_review' === $registration->status ) : ?>
+	<p><?php esc_html_e( 'Payment needs review. Verify the amount and available places; arrange a refund in Pronamic/Mollie if admission is not possible. This entry is not confirmed.', 'formflow' ); ?></p>
+<?php endif; ?>
 <table class="widefat striped">
 
 	<tbody>
@@ -106,7 +115,7 @@ defined( 'ABSPATH' ) || exit;
 				} else {
 
 					echo esc_html(
-						ucfirst( $registration->status )
+						ucwords( str_replace( '_', ' ', $registration->status ) )
 					);
 
 				}
