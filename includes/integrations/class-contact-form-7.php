@@ -91,6 +91,10 @@ class FormFlow_Contact_Form_7 {
 			$posted_data
 		);
 
+		error_log(
+			print_r( $this->registration_result, true )
+		);
+
 		$result = $this->registration_result;
 
 		if ( ! $result['success'] ) {
@@ -126,17 +130,44 @@ class FormFlow_Contact_Form_7 {
 	 */
 	public function modify_feedback_response( $response, $result ) {
 
-		if (
-			empty( $this->registration_result ) ||
-			'waiting' !== $this->registration_result['status']
-		) {
+		if ( empty( $this->registration_result ) ) {
 			return $response;
 		}
 
-		$response['message'] = __(
-			'Thank you! The current batch is full, so you have been added to the waiting list. We will contact you if a place becomes available.',
-			'formflow'
-		);
+		/**
+		 * Registration failed.
+		 *
+		 * Examples:
+		 * - Event registration is closed.
+		 * - No open batch and waiting list is disabled.
+		 * - Batch is full and waiting list is disabled.
+		 */
+		if ( empty( $this->registration_result['success'] ) ) {
+
+			$response['status'] = 'validation_failed';
+
+			$response['message'] = ! empty( $this->registration_result['message'] )
+				? $this->registration_result['message']
+				: __( 'Aanmeldingen voor dit programma zijn momenteel gesloten.', 'formflow' );
+
+			return $response;
+		}
+
+		/**
+		 * Successfully added to waiting list.
+		 */
+		if (
+			! empty( $this->registration_result['status'] ) &&
+			'waiting' === $this->registration_result['status']
+		) {
+
+			$response['message'] = __(
+				'Dank u! De huidige batch is vol, dus bent u toegevoegd aan de wachtlijst. We nemen contact met u op als er een plek beschikbaar is.',
+				'formflow'
+			);
+
+			return $response;
+		}
 
 		return $response;
 	}

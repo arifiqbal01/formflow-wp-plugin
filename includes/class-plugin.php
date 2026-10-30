@@ -43,6 +43,9 @@ class FormFlow_Plugin {
 		// Loader.
 		require_once FORMFLOW_PATH . 'includes/class-loader.php';
 
+		// Installer / Migrations.
+		require_once FORMFLOW_PATH . 'includes/migrations/class-migrator.php';
+
 		// Database.
 		require_once FORMFLOW_PATH . 'includes/database/class-event-database.php';
 		require_once FORMFLOW_PATH . 'includes/database/class-event-batch-database.php';
@@ -76,6 +79,10 @@ class FormFlow_Plugin {
 
 		// Shared database facade.
 		$this->database = new FormFlow_Database();
+
+		// Run database migrations.
+		FormFlow_Migrator::run();
+
 
 		// Shared services.
 		$capacity_service = new FormFlow_Capacity_Service(
@@ -119,5 +126,15 @@ class FormFlow_Plugin {
                 $registration_service
             );
 		}
+	}
+
+	public static function activate() {
+
+		self::create_tables();
+
+		update_option(
+			'formflow_version',
+			FORMFLOW_VERSION
+		);
 	}
 }

@@ -28,6 +28,7 @@ class FormFlow_Events_Table {
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			title VARCHAR(255) NOT NULL,
 			cf7_form_id BIGINT UNSIGNED NOT NULL,
+			registration_open TINYINT(1) NOT NULL DEFAULT 1,
 			waiting_list_enabled TINYINT(1) NOT NULL DEFAULT 1,
 			promotion_email_enabled TINYINT(1) NOT NULL DEFAULT 0,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

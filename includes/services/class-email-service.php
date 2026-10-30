@@ -37,7 +37,7 @@ class FormFlow_Email_Service {
 
 		error_log(
 			sprintf(
-				'[FormFlow] Preparing registration email for registration #%d',
+				'[FormFlow] Het registratie-e-mailbericht voor registratie voorbereiden #%d',
 				$registration_id
 			)
 		);
@@ -48,7 +48,7 @@ class FormFlow_Email_Service {
 
 			error_log(
 				sprintf(
-					'[FormFlow] Submission not found for registration #%d',
+					'[FormFlow] Submission niet gevonden voor registratie #%d',
 					$registration_id
 				)
 			);
@@ -57,14 +57,14 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {
 
 			error_log(
 				sprintf(
-					'[FormFlow] No recipient email for registration #%d',
+					'[FormFlow] Geen ontvangeremail voor registratie #%d',
 					$registration_id
 				)
 			);
@@ -158,7 +158,7 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {
@@ -246,7 +246,7 @@ class FormFlow_Email_Service {
 		}
 
 		$email = sanitize_email(
-			$submission->get( 'your-email' )
+			$submission->email()
 		);
 
 		if ( empty( $email ) ) {

@@ -62,14 +62,14 @@ class FormFlow_Registration_Service {
 		if ( ! $event ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Event not found.', 'formflow' ),
+				'message' => __( 'Programma niet gevonden.', 'formflow' ),
 			);
 		}
 
 		if ( ! $event->registration_open ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Registration is currently closed.', 'formflow' ),
+				'message' => __( 'De inschrijving is momenteel gesloten.', 'formflow' ),
 			);
 		}
 
@@ -84,7 +84,7 @@ class FormFlow_Registration_Service {
             if ( ! $event->waiting_list_enabled ) {
                 return array(
                     'success' => false,
-                    'message' => __( 'Registration is currently closed.', 'formflow' ),
+                    'message' => __( 'De inschrijving is momenteel gesloten.', 'formflow' ),
                 );
             }
 
@@ -99,7 +99,7 @@ class FormFlow_Registration_Service {
                 if ( ! $event->waiting_list_enabled ) {
                     return array(
                         'success' => false,
-                        'message' => __( 'Registration is full.', 'formflow' ),
+                        'message' => __( 'De inschrijving is vol.', 'formflow' ),
                     );
                 }
 
@@ -119,7 +119,7 @@ class FormFlow_Registration_Service {
         if ( ! $registration_id ) {
 			return array(
 				'success' => false,
-				'message' => __( 'Unable to save registration.', 'formflow' ),
+				'message' => __( 'De inschrijving kon niet worden opgeslagen.', 'formflow' ),
 			);
 		}
 
