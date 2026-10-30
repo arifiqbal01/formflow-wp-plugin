@@ -59,6 +59,8 @@ class FormFlow_Plugin {
 		require_once FORMFLOW_PATH . 'includes/services/class-event-batch-service.php';
 		require_once FORMFLOW_PATH . 'includes/services/class-email-service.php';
 
+		require_once FORMFLOW_PATH . 'includes/services/class-payment-service.php';
+
 		// Integrations.
 		require_once FORMFLOW_PATH . 'includes/integrations/class-contact-form-7.php';
 
@@ -119,11 +121,14 @@ class FormFlow_Plugin {
 			);
 		}
 
+		$payment_service = new FormFlow_Payment_Service( $this->database, $capacity_service, $email_service );
+
 		// Contact Form 7 integration.
 		if ( class_exists( 'WPCF7' ) ) {
 			new FormFlow_Contact_Form_7(
                 $this->database,
-                $registration_service
+                $registration_service,
+                $payment_service
             );
 		}
 	}

@@ -128,7 +128,7 @@ defined( 'ABSPATH' ) || exit;
 							<?php else : ?>
 
 								<span style="color:#666;font-weight:600;">
-									<?php echo esc_html( ucfirst( $registration->status ) ); ?>
+									<?php echo esc_html( ucwords( str_replace( '_', ' ', $registration->status ) ) ); ?>
 								</span>
 
 							<?php endif; ?>

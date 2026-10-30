@@ -119,12 +119,19 @@ class FormFlow_Events {
 			: 0;
 
 		$data = array(
+			'payment_required'          => isset( $_POST['payment_required'] ) ? 1 : 0,
+			'payment_amount'            => isset( $_POST['payment_amount'] ) && is_string( $_POST['payment_amount'] ) ? sanitize_text_field( wp_unslash( $_POST['payment_amount'] ) ) : '',
+			'pronamic_config_id'        => isset( $_POST['pronamic_config_id'] ) ? absint( $_POST['pronamic_config_id'] ) : 0,
 			'title'                     => sanitize_text_field( wp_unslash( $_POST['title'] ) ),
 			'cf7_form_id'               => absint( $_POST['cf7_form_id'] ),
 			'registration_open'         => isset( $_POST['registration_open'] ) ? 1 : 0,
 			'waiting_list_enabled'      => isset( $_POST['waiting_list_enabled'] ) ? 1 : 0,
 			'promotion_email_enabled'   => isset( $_POST['promotion_email_enabled'] ) ? 1 : 0,
 		);
+
+		if ( ! $data['payment_required'] ) {
+			$data['payment_amount'] = '0.00';
+		}
 
 		if ( $event_id ) {
 

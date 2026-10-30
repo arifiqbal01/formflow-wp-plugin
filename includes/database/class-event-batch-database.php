@@ -56,13 +56,17 @@ class FormFlow_Event_Batch_Database {
 	 * @return bool
 	 */
 	public function update_batch( $batch_id, array $data ) {
-		global $wpdb;
-
-		return false !== $wpdb->update(
-			$this->table,
-			$data,
-			array( 'id' => $batch_id )
-		);
+		$batch = $this->get_batch( $batch_id );
+		if ( ! $batch ) { return false; }
+		$registrations = new FormFlow_Registration_Database();
+		$result = $registrations->with_event_lock( $batch->event_id, function () use ( $batch_id, $data, $registrations ) {
+			global $wpdb;
+			if ( isset( $data['capacity'] ) && (int) $data['capacity'] < $registrations->occupied_count( $batch_id ) ) {
+				return false;
+			}
+			return false !== $wpdb->update( $this->table, $data, array( 'id' => $batch_id ) );
+		} );
+		return true === $result;
 	}
 
 	/**

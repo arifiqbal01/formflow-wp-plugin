@@ -56,15 +56,12 @@ class FormFlow_Event_Database {
 	 * @return bool
 	 */
 	public function update_event( $event_id, array $data ) {
-		global $wpdb;
-
-		return false !== $wpdb->update(
-			$this->table,
-			$data,
-			array(
-				'id' => $event_id,
-			)
-		);
+		$registrations = new FormFlow_Registration_Database();
+		$result = $registrations->with_event_lock( $event_id, function () use ( $event_id, $data ) {
+			global $wpdb;
+			return false !== $wpdb->update( $this->table, $data, array( 'id' => $event_id ) );
+		} );
+		return true === $result;
 	}
 
 	/**

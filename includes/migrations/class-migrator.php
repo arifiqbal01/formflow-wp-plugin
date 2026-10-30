@@ -20,7 +20,7 @@ class FormFlow_Migrator {
 
 		$migrations = array(
 			'1.1.0' => 'migration-1-1-0.php',
-			// '1.2.0' => 'migration-1-2-0.php',
+			'1.2.0' => 'migration-1-2-0.php',
 			// '1.3.0' => 'migration-1-3-0.php',
 		);
 

@@ -56,6 +56,12 @@ class FormFlow_Registration_Service {
      * @return array
      */
     public function register( $event_id, array $submission_data ) {
+		return $this->database->registrations->with_event_lock( $event_id, function () use ( $event_id, $submission_data ) {
+			return $this->register_unlocked( $event_id, $submission_data );
+		} );
+	}
+
+	private function register_unlocked( $event_id, array $submission_data ) {
 
         $event = $this->database->events->get_event( $event_id );
 
@@ -64,6 +70,10 @@ class FormFlow_Registration_Service {
 				'success' => false,
 				'message' => __( 'Programma niet gevonden.', 'formflow' ),
 			);
+		}
+
+		if ( ! empty( $event->payment_required ) ) {
+			return array( 'success' => false, 'message' => __( 'Successful payment is required before registration can be confirmed.', 'formflow' ) );
 		}
 
 		if ( ! $event->registration_open ) {
@@ -104,6 +114,7 @@ class FormFlow_Registration_Service {
                 }
 
                 $status = 'waiting';
+                $batch_id = null;
             }
         }
 
@@ -158,6 +169,18 @@ class FormFlow_Registration_Service {
 		$batch_id
 	) {
 
+		$result = $this->database->registrations->with_event_lock( $event_id, function () use ( $event_id, $batch_id ) {
+			$event = $this->database->events->get_event( $event_id );
+			$batch = $this->database->batches->get_batch( $batch_id );
+			if ( ! $event || ! $event->registration_open || ! empty( $event->payment_required ) || ! $batch || 'open' !== $batch->status || (int) $batch->event_id !== (int) $event_id ) {
+				return 0;
+			}
+			return $this->promote_unlocked( $event_id, $batch_id );
+		} );
+		return is_int( $result ) ? $result : 0;
+	}
+
+	private function promote_unlocked( $event_id, $batch_id ) {
 		$remaining = $this->capacity->remaining_seats(
 			$batch_id
 		);
@@ -180,6 +203,9 @@ class FormFlow_Registration_Service {
 		$count = 0;
 
 		foreach ( $waiting as $registration ) {
+			if ( (float) $registration->payment_amount > 0 && 'paid' !== $registration->payment_status ) {
+				continue;
+			}
 
 			$this->database
 				->registrations
@@ -214,14 +240,12 @@ class FormFlow_Registration_Service {
 	 */
 	public function cancel( $registration_id ) {
 
-		return $this->database
-			->registrations
-			->update_registration(
-				$registration_id,
-				array(
-					'status' => 'cancelled',
-				)
-			);
+		$row = $this->database->registrations->get_registration( $registration_id );
+		if ( ! $row ) { return false; }
+		$result = $this->database->registrations->with_event_lock( $row->event_id, function () use ( $registration_id ) {
+			return $this->database->registrations->update_registration( $registration_id, array( 'status' => 'cancelled', 'reservation_expires_at' => null ) );
+		} );
+		return true === $result;
 	}
 
 	/**
@@ -285,6 +309,16 @@ class FormFlow_Registration_Service {
 		$batch_id
 	) {
 
+		$row = $this->database->registrations->get_registration( $registration_id );
+		if ( ! $row ) {
+			return array( 'success' => false, 'message' => __( 'Registration not found.', 'formflow' ) );
+		}
+		return $this->database->registrations->with_event_lock( $row->event_id, function () use ( $registration_id, $batch_id ) {
+			return $this->assign_unlocked( $registration_id, $batch_id );
+		} );
+	}
+
+	private function assign_unlocked( $registration_id, $batch_id ) {
 		$registration = $this->database
 			->registrations
 			->get_registration( $registration_id );
@@ -296,6 +330,10 @@ class FormFlow_Registration_Service {
 			);
 		}
 
+		$event = $this->database->events->get_event( $registration->event_id );
+		if ( ( ! empty( $event->payment_required ) || (float) $registration->payment_amount > 0 ) && 'paid' !== $registration->payment_status ) {
+			return array( 'success' => false, 'message' => __( 'Payment is required. Ask the parent to complete a new paid registration.', 'formflow' ) );
+		}
 		if ( 'waiting' !== $registration->status ) {
 			return array(
 				'success' => false,
@@ -321,7 +359,7 @@ class FormFlow_Registration_Service {
 			);
 		}
 
-		if ( $this->capacity->is_full( $batch_id ) ) {
+		if ( 'open' !== $batch->status || $this->capacity->is_full( $batch_id ) ) {
 			return array(
 				'success' => false,
 				'message' => __( 'The selected batch is full.', 'formflow' ),

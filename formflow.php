@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FormFlow
  * Description: Registration and waiting list management for Contact Form 7.
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: WebArtsy
  * Author URI: https://webartsy.nl
  * Text Domain: formflow
@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin version.
-define( 'FORMFLOW_VERSION', '1.1.0' );
+define( 'FORMFLOW_VERSION', '1.2.0' );
 
 // Plugin paths.
 define( 'FORMFLOW_FILE', __FILE__ );
@@ -83,15 +83,6 @@ function formflow_missing_cf7_notice() {
 	<?php
 }
 
-// Stop loading if Contact Form 7 isn't active.
-if ( ! formflow_is_cf7_active() ) {
-	add_action( 'admin_notices', 'formflow_missing_cf7_notice' );
-	return;
-}
-
-// Load the plugin.
-require_once FORMFLOW_PATH . 'includes/class-plugin.php';
-
 /**
  * Initialize the plugin.
  *
@@ -108,4 +99,14 @@ function formflow() {
 	return $plugin;
 }
 
-formflow();
+add_action( 'plugins_loaded', function () {
+	if ( ! formflow_is_cf7_active() ) {
+		add_action( 'admin_notices', 'formflow_missing_cf7_notice' );
+		return;
+	}
+	require_once FORMFLOW_PATH . 'includes/class-plugin.php';
+	formflow();
+}, 20 );
+register_deactivation_hook( FORMFLOW_FILE, function () {
+	wp_clear_scheduled_hook( 'formflow_payment_maintenance' );
+} );

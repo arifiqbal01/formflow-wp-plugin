@@ -41,7 +41,7 @@ class FormFlow_Capacity_Service {
 			return true;
 		}
 
-		return $this->registered_count( $batch_id ) >= (int) $batch->capacity;
+		return $this->occupied_count( $batch_id ) >= (int) $batch->capacity;
 	}
 
 	/**
@@ -92,7 +92,7 @@ class FormFlow_Capacity_Service {
 			return 0;
 		}
 
-		$remaining = (int) $batch->capacity - $this->registered_count( $batch_id );
+		$remaining = (int) $batch->capacity - $this->occupied_count( $batch_id );
 
 		return max( 0, $remaining );
 	}
@@ -130,12 +130,17 @@ class FormFlow_Capacity_Service {
 		}
 
 		$registered = $this->registered_count( $batch_id );
+		$occupied = $this->occupied_count( $batch_id );
 
 		return array(
 			'capacity'   => (int) $batch->capacity,
 			'registered' => $registered,
-			'remaining'  => max( 0, (int) $batch->capacity - $registered ),
-			'full'       => $registered >= (int) $batch->capacity,
+			'remaining'  => max( 0, (int) $batch->capacity - $occupied ),
+			'full'       => $occupied >= (int) $batch->capacity,
 		);
+	}
+
+	public function occupied_count( $batch_id ) {
+		return $this->database->registrations->occupied_count( $batch_id );
 	}
 }

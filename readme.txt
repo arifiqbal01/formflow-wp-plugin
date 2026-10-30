@@ -1,5 +1,11 @@
 # FormFlow
 
+## Version 1.2: mandatory payments
+
+FormFlow now supports mandatory EUR payments through Pronamic Pay with Mollie. Enable payment per event, set its server-side price, and use `[formflow_payment_summary]` in the CF7 form. Paid registration is confirmed only after successful payment. Active checkout reservations count against capacity. Paid events do not use the automatic unpaid waiting-list workflow described below.
+
+See [mandatory payment setup, behaviour and tests](docs/mandatory-payments.md) before enabling this on a website. Existing events and confirmed attendees are preserved during the upgrade.
+
 FormFlow is a WordPress plugin that extends Contact Form 7 with event registration management. It allows administrators to create events, manage registration batches, automatically handle waiting lists, and monitor registrations from the WordPress dashboard.
 
 The plugin is designed for organizations that run recurring events where registrations are limited by capacity.
