@@ -130,7 +130,14 @@ class FormFlow_Contact_Form_7 {
 	 */
 	public function modify_feedback_response( $response, $result ) {
 
+<<<<<<< HEAD
 		if ( empty( $this->registration_result ) ) {
+=======
+		if (
+			empty( $this->registration_result['status'] ) ||
+			'waiting' !== $this->registration_result['status']
+		) {
+>>>>>>> origin/main
 			return $response;
 		}
 
