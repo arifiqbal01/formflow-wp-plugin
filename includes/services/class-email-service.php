@@ -367,6 +367,93 @@ class FormFlow_Email_Service {
 		return $output;
 	}
 
+
+	/**
+ * Email a payment invitation for an existing reserved registration.
+ *
+ * @param int    $registration_id Registration ID.
+ * @param string $payment_url     Pronamic payment checkout URL.
+ * @return bool Whether WordPress accepted the email for sending.
+ */
+public function send_payment_invitation(
+	$registration_id,
+	$payment_url
+) {
+	$submission = $this->get_submission( $registration_id );
+
+	if ( ! $submission ) {
+		return false;
+	}
+
+	$registration = $submission->registration();
+	$event        = $submission->event();
+	$email        = sanitize_email( $submission->email() );
+
+	if (
+		! is_email( $email ) ||
+		'pending_payment' !== $registration->status ||
+		empty( $registration->payment_id ) ||
+		empty( $registration->reservation_expires_at ) ||
+		(float) $registration->payment_amount <= 0
+	) {
+		return false;
+	}
+
+	$expires = strtotime(
+		$registration->reservation_expires_at . ' UTC'
+	);
+
+	if ( false === $expires || $expires <= time() ) {
+		return false;
+	}
+
+	$payment_url = esc_url_raw( $payment_url );
+
+	// Pronamic checkout links should point to this WordPress website.
+	if (
+		! $payment_url ||
+		wp_parse_url( $payment_url, PHP_URL_HOST ) !==
+			wp_parse_url( home_url( '/' ), PHP_URL_HOST )
+	) {
+		return false;
+	}
+
+	$deadline = wp_date(
+		get_option( 'date_format' ) . ' ' .
+			get_option( 'time_format' ) . ' T',
+		$expires,
+		wp_timezone()
+	);
+
+	$amount = number_format_i18n(
+		(float) $registration->payment_amount,
+		2
+	);
+
+	$subject = sprintf(
+		'Er is een plaats beschikbaar – %s',
+		$event->title
+	);
+
+	$message = $this->render_email(
+		'emails/payment-invitation',
+		array(
+			'event'       => $event,
+			'amount'      => $amount,
+			'currency'    => $registration->payment_currency,
+			'deadline'    => $deadline,
+			'payment_url' => $payment_url,
+		)
+	);
+
+	return wp_mail(
+		$email,
+		$subject,
+		$message,
+		$this->headers()
+	);
+}
+
 	/**
 	 * Email headers.
 	 *

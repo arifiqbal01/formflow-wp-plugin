@@ -46,6 +46,23 @@ class FormFlow_Registrations {
 	
 		$this->handle_actions();
 
+		if ( isset( $_GET['payment_invited'] ) ) {
+			echo '<div class="notice notice-success"><p>';
+			echo esc_html(
+				'De betaaluitnodiging is aangeboden aan de mailserver. Controleer de aflevering in uw mail- of SMTP-log.'
+			);
+			echo '</p></div>';
+		} elseif (
+			isset( $_GET['error'] ) &&
+			is_string( $_GET['error'] )
+		) {
+			echo '<div class="notice notice-error"><p>';
+			echo esc_html(
+				sanitize_text_field( wp_unslash( $_GET['error'] ) )
+			);
+			echo '</p></div>';
+		}
+
 
 		$registrations = $this->database
 			->registrations
@@ -99,6 +116,9 @@ class FormFlow_Registrations {
 
 			case 'cancel_registration':
 				$this->cancel_registration();
+				break;
+			case 'invite_payment':
+				$this->invite_payment();
 				break;
 		}
 	}
@@ -203,6 +223,37 @@ class FormFlow_Registrations {
 
 		exit;
 	}
+
+
+	private function invite_payment() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_die( 'U heeft geen toegang tot deze actie.' );
+	}
+
+	if ( 'POST' !== $_SERVER['REQUEST_METHOD'] ) {
+		wp_die( 'Gebruik de uitnodigingsknop.' );
+	}
+
+	$id = isset( $_POST['registration'] )
+		? absint( $_POST['registration'] )
+		: 0;
+
+	check_admin_referer( 'formflow_invite_payment_' . $id );
+
+	$result = $this->registration_service->invite_to_pay( $id );
+
+	$args = ! empty( $result['success'] )
+		? array( 'payment_invited' => 1 )
+		: array( 'error' => $result['message'] );
+
+	wp_safe_redirect(
+		add_query_arg(
+			$args,
+			admin_url( 'admin.php?page=formflow-registrations' )
+		)
+	);
+	exit;
+}
 
 
 	/**

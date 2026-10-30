@@ -95,10 +95,17 @@ class FormFlow_Plugin {
 			$this->database
 		);
 
-		$registration_service = new FormFlow_Registration_Service(
+		$payment_service = new FormFlow_Payment_Service(
 			$this->database,
 			$capacity_service,
 			$email_service
+		);
+
+		$registration_service = new FormFlow_Registration_Service(
+			$this->database,
+			$capacity_service,
+			$email_service,
+			$payment_service
 		);
 
 		$batch_service = new FormFlow_Event_Batch_Service(
@@ -120,8 +127,6 @@ class FormFlow_Plugin {
 				$registration_service
 			);
 		}
-
-		$payment_service = new FormFlow_Payment_Service( $this->database, $capacity_service, $email_service );
 
 		// Contact Form 7 integration.
 		if ( class_exists( 'WPCF7' ) ) {

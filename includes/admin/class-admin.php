@@ -77,7 +77,7 @@ class FormFlow_Admin {
 
 		// Dashboard.
 		add_submenu_page(
-			'wpcf7',
+			'wpcf7-dashboard',
 			__( 'FormFlow Dashboard', 'formflow' ),
 			__( 'FormFlow', 'formflow' ),
 			'manage_options',
@@ -87,7 +87,7 @@ class FormFlow_Admin {
 
 		// Events.
 		add_submenu_page(
-			'wpcf7',
+			'wpcf7-dashboard',
 			__( 'Events', 'formflow' ),
 			__( 'Events', 'formflow' ),
 			'manage_options',
@@ -106,7 +106,7 @@ class FormFlow_Admin {
 
 		// Registrations.
 		add_submenu_page(
-			'wpcf7',
+			'wpcf7-dashboard',
 			__( 'Registrations', 'formflow' ),
 			__( 'Registrations', 'formflow' ),
 			'manage_options',

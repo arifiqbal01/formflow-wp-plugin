@@ -69,22 +69,47 @@ class FormFlow_Contact_Form_7 {
 	}
 
 	public function submission_result( $result, $submission ) {
-		if ( ! $this->registration_result || (int) $submission->get_contact_form()->id() !== $this->managed_form_id ) {
-			return $result;
-		}
-		if ( empty( $this->registration_result['success'] ) ) {
-			$result['status'] = 'aborted';
-			$result['message'] = $this->registration_result['message'];
-			unset( $result['pronamic_pay_redirect_url'], $result['formflow_redirect_url'] );
-		} elseif ( $this->paid_form ) {
-			$result['status'] = 'formflow_payment_redirect';
-			$result['message'] = __( 'Your place is reserved temporarily. Continue to payment to complete registration.', 'formflow' );
-			$result['formflow_redirect_url'] = $this->registration_result['redirect_url'];
-		} elseif ( 'waiting' === $this->registration_result['status'] && 'mail_sent' === $result['status'] ) {
-			$result['message'] = __( 'Thank you! The current batch is full, so you have been added to the waiting list. We will contact you if a place becomes available.', 'formflow' );
-		}
+	if (
+		! $this->registration_result ||
+		(int) $submission->get_contact_form()->id() !== $this->managed_form_id
+	) {
 		return $result;
 	}
+
+	if ( empty( $this->registration_result['success'] ) ) {
+		$result['status'] = 'aborted';
+		$result['message'] = $this->registration_result['message'];
+
+		unset(
+			$result['pronamic_pay_redirect_url'],
+			$result['formflow_redirect_url']
+		);
+	} elseif (
+		'waiting' === ( $this->registration_result['status'] ?? '' )
+	) {
+		// Successful waiting-list submission, not confirmed admission.
+		$result['status'] = 'mail_sent';
+		$result['message'] = __(
+			'U staat op de wachtlijst. Zodra er een plaats beschikbaar is, ontvangt u bericht met verdere instructies. Uw inschrijving is pas definitief na betaling.',
+			'formflow'
+		);
+
+		unset(
+			$result['pronamic_pay_redirect_url'],
+			$result['formflow_redirect_url']
+		);
+	} elseif ( $this->paid_form ) {
+		$result['status'] = 'formflow_payment_redirect';
+		$result['message'] = __(
+			'Uw plaats is tijdelijk gereserveerd. Ga verder naar de betaling om uw inschrijving af te ronden.',
+			'formflow'
+		);
+		$result['formflow_redirect_url'] =
+			$this->registration_result['redirect_url'];
+	}
+
+	return $result;
+}
 
 	public function after_submit( $form, $result ) {
 		foreach ( $this->removed_callbacks as $entry ) {

@@ -33,6 +33,13 @@ class FormFlow_Registration_Service {
 	private $email;
 
 	/**
+	 * Payment service.
+	 *
+	 * @var FormFlow_Payment_Service|null
+	 */
+	private $payments;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param FormFlow_Database         $database Database facade.
@@ -41,13 +48,14 @@ class FormFlow_Registration_Service {
 	public function __construct(
 		FormFlow_Database $database,
 		FormFlow_Capacity_Service $capacity,
-		FormFlow_Email_Service $email
+		FormFlow_Email_Service $email,
+		?FormFlow_Payment_Service $payments = null
 	) {
 		$this->database = $database;
 		$this->capacity = $capacity;
 		$this->email    = $email;
+		$this->payments = $payments;
 	}
-
 	/**
      * Register a submission.
      *
@@ -295,6 +303,18 @@ class FormFlow_Registration_Service {
 			'success' => true,
 		);
 	}
+
+
+	public function invite_to_pay( $registration_id ) {
+	if ( ! $this->payments ) {
+		return array(
+			'success' => false,
+			'message' => 'De betaalservice is niet beschikbaar.',
+		);
+	}
+
+	return $this->payments->invite_waiting( $registration_id );
+}
 
 
 	/**
