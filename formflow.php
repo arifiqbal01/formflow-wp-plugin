@@ -2,7 +2,7 @@
 /**
  * Plugin Name: FormFlow
  * Description: Registration and waiting list management for Contact Form 7.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: WebArtsy
  * Author URI: https://webartsy.nl
  * Text Domain: formflow
@@ -14,7 +14,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Plugin version.
-define( 'FORMFLOW_VERSION', '1.2.0' );
+define( 'FORMFLOW_VERSION', '1.2.1' );
 
 // Plugin paths.
 define( 'FORMFLOW_FILE', __FILE__ );

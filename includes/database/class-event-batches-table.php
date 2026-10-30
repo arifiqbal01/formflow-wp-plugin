@@ -24,18 +24,13 @@ class FormFlow_Event_Batches_Table {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
+		// dbDelta requires each complete column definition on one line.
 		$sql = "CREATE TABLE {$table_name} (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			event_id BIGINT UNSIGNED NOT NULL,
 			batch_number INT UNSIGNED NOT NULL DEFAULT 1,
 			capacity INT UNSIGNED NOT NULL DEFAULT 10,
-			status ENUM(
-				'draft',
-				'open',
-				'closed',
-				'completed',
-				'cancelled'
-			) NOT NULL DEFAULT 'open',
+			status ENUM('draft','open','closed','completed','cancelled') NOT NULL DEFAULT 'open',
 			starts_at DATETIME NULL,
 			ends_at DATETIME NULL,
 			created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
