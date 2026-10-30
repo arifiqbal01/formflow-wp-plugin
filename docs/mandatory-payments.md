@@ -1,4 +1,4 @@
-# Mandatory registration payments (FormFlow 1.2)
+# Mandatory registration payments (FormFlow 1.2.1)
 
 FormFlow creates a pending checkout first. A parent is registered only after Pronamic reports a successful payment for the exact stored amount/currency. Browser redirects never prove payment.
 
@@ -58,3 +58,9 @@ WP_TEST_ROOT=/path/to/wordpress bash tests/run.sh
 The database must already exist and be named `formflow_test` or `formflow_test_*`; the suite rejects other database names. The suite installs WordPress tables if needed. The configured WordPress database and `FORMFLOW_TEST_DB_*` environment values must match. No credentials or live provider settings belong in the repository.
 
 Automated gateway doubles do not replace a real Mollie test-mode checkout against the installed versions. No staging or live transaction was performed during implementation.
+
+## 1.2.1 maintenance fix
+
+The batch status ENUM is now a complete single-line column definition so WordPress dbDelta can reconcile existing tables during activation. The upgrade retries the batch schema once and preserves all batches and attendees. No tables need deleting. Cron scheduling now waits for init, avoiding premature translation loading by FormFlow's schedule label or another plugin's cron_schedules filter.
+
+Pronamic's legacy CF7 payment-method and issuer tag-generator deprecations are separate vendor compatibility notices. FormFlow does not register those buttons. The Mollie checkout integration does not need them, but this patch does not disable Pronamic's tools for other forms. A WooCommerce translation notice without a call stack cannot be attributed conclusively; check fresh logs after updating FormFlow.

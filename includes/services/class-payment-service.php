@@ -21,6 +21,12 @@ class FormFlow_Payment_Service {
 		add_filter( 'pronamic_payment_redirect_url_formflow', array( $this, 'return_url' ), 10, 2 );
 		add_action( 'template_redirect', array( $this, 'render_return' ) );
 		add_action( 'formflow_payment_maintenance', array( $this, 'maintenance' ) );
+		// Scheduling runs cron_schedules filters in other plugins too. Never do this
+		// during plugins_loaded: translated labels must wait until init.
+		add_action( 'init', array( $this, 'schedule_maintenance' ) );
+	}
+
+	public function schedule_maintenance() {
 		add_filter( 'cron_schedules', array( $this, 'cron_schedules' ) );
 		if ( ! wp_next_scheduled( 'formflow_payment_maintenance' ) ) {
 			wp_schedule_event( time() + 300, 'formflow_five_minutes', 'formflow_payment_maintenance' );
@@ -28,7 +34,10 @@ class FormFlow_Payment_Service {
 	}
 
 	public function cron_schedules( $schedules ) {
-		$schedules['formflow_five_minutes'] = array( 'interval' => 300, 'display' => __( 'Every five minutes', 'formflow' ) );
+		$schedules['formflow_five_minutes'] = array(
+			'interval' => 300,
+			'display' => did_action( 'init' ) ? __( 'Every five minutes', 'formflow' ) : 'Every five minutes',
+		);
 		return $schedules;
 	}
 

@@ -16,9 +16,9 @@ if ( ! get_option( 'formflow_test_installed' ) ) {
 }
 define( 'FORMFLOW_PATH', dirname( __DIR__ ) . '/' );
 define( 'FORMFLOW_URL', 'http://example.test/wp-content/plugins/formflow/' );
-define( 'FORMFLOW_VERSION', '1.2.0' );
+define( 'FORMFLOW_VERSION', '1.2.1' );
 require __DIR__ . '/pronamic-double.php';
-foreach ( array( 'database/class-event-database', 'database/class-event-batch-database', 'database/class-registration-database', 'database/class-database', 'database/class-event-batches-table', 'database/class-events-table', 'database/class-registrations-table', 'dto/class-submission-data', 'services/class-capacity-service', 'services/class-email-service', 'services/class-registration-service', 'services/class-event-batch-service', 'services/class-payment-service', 'migrations/migration-1-2-0', 'integrations/class-contact-form-7' ) as $file ) {
+foreach ( array( 'database/class-event-database', 'database/class-event-batch-database', 'database/class-registration-database', 'database/class-database', 'database/class-event-batches-table', 'database/class-events-table', 'database/class-registrations-table', 'dto/class-submission-data', 'services/class-capacity-service', 'services/class-email-service', 'services/class-registration-service', 'services/class-event-batch-service', 'services/class-payment-service', 'migrations/migration-1-2-0', 'migrations/migration-1-2-1', 'integrations/class-contact-form-7' ) as $file ) {
 	require_once FORMFLOW_PATH . 'includes/' . $file . '.php';
 }
 class EmailSpy extends FormFlow_Email_Service {
@@ -60,6 +60,26 @@ if ( getenv( 'FORMFLOW_TEST_WORKER' ) ) {
 foreach ( array( 'registrations', 'event_batches', 'events' ) as $table ) { $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}formflow_{$table}" ); }
 FormFlow_Events_Table::create(); FormFlow_Event_Batches_Table::create(); FormFlow_Registrations_Table::create();
 $db = new FormFlow_Database();
+// Activation/update must be repeatable on an existing batch table (the reported failure).
+$batch_fixture = $db->batches->insert_batch( array( 'event_id' => 99999, 'batch_number' => 1, 'status' => 'open', 'capacity' => 10 ) );
+$batch_alters = array();
+$capture_batch_query = function ( $query ) use ( &$batch_alters, $wpdb ) {
+	if ( preg_match( '/^ALTER TABLE\s+' . preg_quote( $wpdb->prefix . 'formflow_event_batches', '/' ) . '\s/i', $query ) ) {
+		$batch_alters[] = $query;
+	}
+	return $query;
+};
+add_filter( 'query', $capture_batch_query );
+FormFlow_Event_Batches_Table::create();
+FormFlow_Event_Batches_Table::create();
+check( empty( $batch_alters ), 'repeated activation does not issue malformed ENUM column alterations' );
+check( 'open' === $db->batches->get_batch( $batch_fixture )->status, 'repeated activation preserves an existing batch and its status' );
+delete_option( 'formflow_batch_schema' );
+FormFlow_Migration_1_2_1::run();
+FormFlow_Migration_1_2_1::run();
+check( '1.2.1' === get_option( 'formflow_batch_schema' ) && empty( $batch_alters ), 'batch-schema upgrade and rerun complete without changing existing data' );
+remove_filter( 'query', $capture_batch_query );
+$db->batches->delete_batch( $batch_fixture );
 // Exercise upgrade from the real v1.1.0 columns and enum, preserving a historical attendee.
 $historical = $db->registrations->insert_registration( array( 'event_id' => 1, 'status' => 'registered', 'submission_data' => '{}' ) );
 foreach ( array( 'payment_id', 'payment_status', 'payment_amount', 'payment_currency', 'reservation_expires_at', 'confirmation_sent_at' ) as $column ) { $wpdb->query( "ALTER TABLE {$wpdb->prefix}formflow_registrations DROP COLUMN {$column}" ); }
@@ -77,7 +97,16 @@ update_post_meta( $config, '_pronamic_gateway_id', 'mollie' ); update_option( 'p
 $event_id = $db->events->insert_event( array( 'title' => 'Sakynah', 'cf7_form_id' => 42, 'payment_required' => 1, 'payment_amount' => '80.00' ) );
 $batch_id = $db->batches->insert_batch( array( 'event_id' => $event_id, 'batch_number' => 1, 'capacity' => 1, 'status' => 'open' ) );
 $capacity = new FormFlow_Capacity_Service( $db ); $email = new EmailSpy( $db );
+wp_clear_scheduled_hook( 'formflow_payment_maintenance' );
+// Constructor must not execute other plugins' cron schedule filters during plugins_loaded.
+$cron_filter_calls = 0;
+$cron_probe = function ( $schedules ) use ( &$cron_filter_calls ) { ++$cron_filter_calls; return $schedules; };
+add_filter( 'cron_schedules', $cron_probe );
 $payments = new FormFlow_Payment_Service( $db, $capacity, $email );
+check( 0 === $cron_filter_calls, 'payment service construction does not trigger early cron/translation filters' );
+$payments->schedule_maintenance();
+check( (bool) wp_next_scheduled( 'formflow_payment_maintenance' ), 'maintenance is scheduled when initialization reaches init' );
+remove_filter( 'cron_schedules', $cron_probe );
 $registrations = new FormFlow_Registration_Service( $db, $capacity, $email );
 $data = array( 'your-email' => 'parent@example.test', 'your-name' => 'Test Parent', 'child-name' => 'Test Child', 'price' => '0.01' );
 $r = $payments->begin( $event_id, $data );
